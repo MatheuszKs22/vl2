@@ -1,0 +1,323 @@
+-- Definições e Criação dos Objetos UI
+local dev = true
+local TweenService = game:GetService("TweenService") -- Serviço para animações
+local UserInputService = game:GetService("UserInputService") -- Serviço para entrada do usuário
+local Volleyball42 = Instance.new("ScreenGui")
+local Main = Instance.new("Frame")
+local UICornerMain = Instance.new("UICorner")
+local TextLabel = Instance.new("TextLabel")
+local Setting = Instance.new("TextButton")
+local Receives = Instance.new("TextButton")
+local Destroy = Instance.new("TextButton")
+local UICornerSetting = Instance.new("UICorner")
+local UICornerReceives = Instance.new("UICorner")
+local UICornerDestroy = Instance.new("UICorner")
+
+-- Função para animar a UI aparecendo
+local function fadeInUI()
+    local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut)
+    
+    local tweenFrame = TweenService:Create(Main, tweenInfo, {BackgroundTransparency = 0})
+    local tweenTextLabel = TweenService:Create(TextLabel, tweenInfo, {TextTransparency = 0})
+    local tweenSetting = TweenService:Create(Setting, tweenInfo, {BackgroundTransparency = 0, TextTransparency = 0})
+    local tweenReceives = TweenService:Create(Receives, tweenInfo, {BackgroundTransparency = 0, TextTransparency = 0})
+    local tweenDestroy = TweenService:Create(Destroy, tweenInfo, {BackgroundTransparency = 0, TextTransparency = 0})
+
+    tweenFrame:Play()
+    tweenTextLabel:Play()
+    tweenSetting:Play()
+    tweenReceives:Play()
+    tweenDestroy:Play()
+end
+
+-- Configuração do ScreenGui
+Volleyball42.Name = "Volleyball42"
+Volleyball42.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+Volleyball42.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+-- Configuração do Frame principal
+Main.Name = "Main"
+Main.Parent = Volleyball42
+Main.BackgroundColor3 = Color3.fromRGB(25, 25, 30) -- Roxo quase preto
+Main.Position = UDim2.new(0.4, 0, 0.35, 0)
+Main.Size = UDim2.new(0, 400, 0, 200)
+Main.Active = true
+Main.Draggable = true
+Main.BackgroundTransparency = 1 -- Inicialmente invisível
+
+-- Configuração do UICorner para o Frame principal
+UICornerMain.Parent = Main
+
+-- Configuração do TextLabel
+TextLabel.Parent = Main
+TextLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+TextLabel.BackgroundTransparency = 1
+TextLabel.Size = UDim2.new(1, 0, 0, 30)
+TextLabel.Font = Enum.Font.Oswald
+TextLabel.Text = "Mx Hub"
+TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+TextLabel.TextScaled = true
+TextLabel.TextSize = 20
+TextLabel.TextWrapped = true
+TextLabel.TextXAlignment = Enum.TextXAlignment.Center
+TextLabel.TextTransparency = 1 -- Inicialmente invisível
+
+-- Configuração do botão Predict
+Setting.Name = "Predict"
+Setting.Parent = Main
+Setting.BackgroundColor3 = Color3.fromRGB(255, 255, 255) -- Branco
+Setting.BackgroundTransparency = 1 -- Inicialmente invisível
+Setting.Position = UDim2.new(0.05, 0, 0.15, 0)
+Setting.Size = UDim2.new(0, 150, 0, 40)
+Setting.Font = Enum.Font.SourceSans
+Setting.Text = "Predict"
+Setting.TextColor3 = Color3.fromRGB(0, 0, 0) -- Texto preto para contraste
+Setting.TextScaled = true
+Setting.TextSize = 16
+Setting.TextWrapped = true
+Setting.TextTransparency = 1 -- Inicialmente invisível
+
+-- Configuração do UICorner para o botão Predict
+UICornerSetting.Parent = Setting
+
+-- Configuração do botão Spiking
+Receives.Name = "Spiking"
+Receives.Parent = Main
+Receives.BackgroundColor3 = Color3.fromRGB(255, 255, 255) -- Branco
+Receives.BackgroundTransparency = 1 -- Inicialmente invisível
+Receives.Position = UDim2.new(0.55, 0, 0.15, 0)
+Receives.Size = UDim2.new(0, 150, 0, 40)
+Receives.Font = Enum.Font.SourceSans
+Receives.Text = "Spiking"
+Receives.TextColor3 = Color3.fromRGB(0, 0, 0) -- Texto preto para contraste
+Receives.TextScaled = true
+Receives.TextSize = 16
+Receives.TextWrapped = true
+Receives.TextTransparency = 1 -- Inicialmente invisível
+
+-- Configuração do UICorner para o botão Spiking
+UICornerReceives.Parent = Receives
+
+-- Configuração do botão Destroy
+Destroy.Name = "Destroy"
+Destroy.Parent = Main
+Destroy.BackgroundColor3 = Color3.fromRGB(255, 255, 255) -- Branco
+Destroy.BackgroundTransparency = 1 -- Inicialmente invisível
+Destroy.Position = UDim2.new(0.05, 0, 0.6, 0)
+Destroy.Size = UDim2.new(0.9, 0, 0.3, 0)
+Destroy.Font = Enum.Font.SourceSans
+Destroy.Text = "Destroy"
+Destroy.TextColor3 = Color3.fromRGB(0, 0, 0) -- Texto preto para contraste
+Destroy.TextScaled = true
+Destroy.TextSize = 18
+Destroy.TextWrapped = true
+Destroy.TextTransparency = 1 -- Inicialmente invisível
+
+-- Configuração do UICorner para o botão Destroy
+UICornerDestroy.Parent = Destroy
+
+-- Função para destruir a UI e finalizar o script
+local function destroyUI()
+    print("Botão Destroy ativado")
+    Volleyball42:Destroy()
+    -- Opcionalmente, você pode encerrar o script usando `script:Destroy()`
+    -- script:Destroy()  -- Descomente se o script estiver em um LocalScript e você deseja encerrá-lo também
+end
+
+-- Variáveis de controle para as funcionalidades ativadas
+local isPredictActive = false
+local isSpikingActive = false
+local marker -- Para armazenar a referência ao marcador
+local renderSteppedConnection -- Para armazenar a conexão com o evento RenderStepped
+local jumpRequestConnection -- Para armazenar a conexão com o evento JumpRequest
+local isRightMouseButtonDown = false -- Variável para monitorar o estado do botão direito do mouse
+
+-- Função para ativar o botão Predict
+local function activatePredict()
+    Setting.BackgroundColor3 = Color3.fromRGB(76, 175, 80) -- Verde suave
+    Setting.TextColor3 = Color3.fromRGB(255, 255, 255) -- Texto branco para contraste
+    print("Botão Predict ativado")
+    isPredictActive = true
+
+    -- Adicione ações adicionais para o estado ativado aqui
+    repeat wait() until workspace:FindFirstChild("Ball")
+
+    -- Constants
+    local RunService = game:GetService("RunService")
+
+    -- Marker
+    marker = Instance.new("Part")
+    marker.Name = "Marker"
+    marker.Size = Vector3.new(2, 2, 2)
+    marker.Shape = Enum.PartType.Ball
+    marker.BrickColor = BrickColor.new("Bright violet")
+    marker.CanCollide = false
+    marker.Anchored = true
+    marker.Parent = workspace
+    marker.Transparency = 0.5 -- Tornar o marcador visível por padrão
+    marker.Material = Enum.Material.Neon
+
+    -- Physics Prediction Function
+    local function predictLandingPosition(velocity, position)
+        local gravity = -workspace.Gravity
+        local y0 = position.y
+        local vy = velocity.y
+        local timeToLand = (vy + math.sqrt(vy * vy - 2 * gravity * y0)) / -gravity
+
+        -- Calculate horizontal displacement
+        local horizontalVelocity = Vector3.new(velocity.x, 0, velocity.z)
+        local horizontalDisplacement = horizontalVelocity * timeToLand
+
+        -- Calculate landing position
+        local landingPosition = position + horizontalDisplacement + Vector3.new(0, -y0, 0)
+        return landingPosition
+    end
+
+    -- Construct
+    RunService:BindToRenderStep("VisualizeLandingPosition", Enum.RenderPriority.Camera.Value, function()
+        for _, ballModel in ipairs(workspace:GetChildren()) do
+            if ballModel:IsA("Model") and ballModel.Name == "Ball" then
+                local ball = ballModel:FindFirstChild("BallPart")
+                if ball then
+                    local velocity = ball.Velocity
+                    local position = ball.Position
+                    marker.Position = predictLandingPosition(velocity, position)
+                end
+            end
+        end
+    end)
+end
+
+-- Função para desativar o botão Predict
+local function deactivatePredict()
+    Setting.BackgroundColor3 = Color3.fromRGB(255, 255, 255) -- Branco
+    Setting.TextColor3 = Color3.fromRGB(0, 0, 0) -- Texto preto
+    print("Botão Predict desativado")
+    isPredictActive = false
+
+    -- Adicione ações adicionais para o estado desativado aqui
+    if marker then
+        marker:Destroy()
+        marker = nil
+    end
+    -- Opcionalmente, remova a vinculação de renderização
+    local RunService = game:GetService("RunService")
+    RunService:UnbindFromRenderStep("VisualizeLandingPosition")
+end
+
+-- Função para ativar o botão Spiking
+local function activateSpiking()
+    Receives.BackgroundColor3 = Color3.fromRGB(76, 175, 80) -- Verde suave
+    Receives.TextColor3 = Color3.fromRGB(255, 255, 255) -- Texto branco
+    print("Botão Spiking ativado")
+    isSpikingActive = true
+
+    -- Referencie os serviços
+    local Workspace = game:GetService("Workspace")
+    local RunService = game:GetService("RunService")
+
+    -- Função para fazer o personagem olhar na direção da câmera
+    local function makeCharacterLookAtCamera()
+        local player = game.Players.LocalPlayer
+        local character = player and player.Character
+        local humanoidRootPart = character and character:FindFirstChild("HumanoidRootPart")
+        local camera = Workspace.CurrentCamera
+
+        if humanoidRootPart and camera then
+            -- Calcula a direção horizontal para onde a câmera está apontando
+            local lookAtPosition = camera.CFrame.Position + camera.CFrame.LookVector * 50
+            local horizontalLookAtPosition = Vector3.new(lookAtPosition.X, humanoidRootPart.Position.Y, lookAtPosition.Z)
+            
+            -- Faz o personagem olhar para essa direção mantendo a orientação vertical inalterada
+            humanoidRootPart.CFrame = CFrame.new(humanoidRootPart.Position, horizontalLookAtPosition)
+        end
+    end
+
+    -- Função para verificar se o personagem está no ar
+    local function isCharacterInAir()
+        local player = game.Players.LocalPlayer
+        local character = player and player.Character
+        local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+
+        return humanoid and humanoid:GetState() == Enum.HumanoidStateType.Freefall
+    end
+
+    -- Função para atualizar a orientação do personagem enquanto estiver no ar
+    local function updateCharacterOrientation()
+        if isCharacterInAir() then
+            makeCharacterLookAtCamera()
+        end
+    end
+
+    -- Atualize a orientação do personagem continuamente enquanto o botão direito do mouse estiver pressionado
+    renderSteppedConnection = RunService.RenderStepped:Connect(function()
+        if isRightMouseButtonDown then
+            updateCharacterOrientation()
+        end
+    end)
+end
+
+-- Função para desativar o botão Spiking
+local function deactivateSpiking()
+    Receives.BackgroundColor3 = Color3.fromRGB(255, 255, 255) -- Branco
+    Receives.TextColor3 = Color3.fromRGB(0, 0, 0) -- Texto preto
+    print("Botão Spiking desativado")
+    isSpikingActive = false
+
+    -- Desconectar a atualização de orientação do personagem
+    if renderSteppedConnection then
+        renderSteppedConnection:Disconnect()
+        renderSteppedConnection = nil
+    end
+end
+
+-- Função para alternar o estado do botão Predict
+local function togglePredict()
+    if isPredictActive then
+        deactivatePredict()
+    else
+        activatePredict()
+    end
+end
+
+-- Função para alternar o estado do botão Spiking
+local function toggleSpiking()
+    if isSpikingActive then
+        deactivateSpiking()
+    else
+        activateSpiking()
+    end
+end
+
+-- Função para o botão Spiking
+local function onSpikingClicked()
+    print("Botão Spiking clicado")
+    toggleSpiking()
+end
+
+-- Função para o botão Predict
+local function onPredictClicked()
+    print("Botão Predict clicado")
+    togglePredict()
+end
+
+-- Conectar as funções aos eventos Activated dos botões
+Destroy.Activated:Connect(destroyUI)
+Setting.Activated:Connect(onPredictClicked)
+Receives.Activated:Connect(onSpikingClicked)
+
+-- Conectar eventos de entrada do usuário para o botão direito do mouse
+UserInputService.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton2 then
+        isRightMouseButtonDown = true
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton2 then
+        isRightMouseButtonDown = false
+    end
+end)
+
+-- Iniciar a animação de fade-in
+fadeInUI()
